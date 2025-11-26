@@ -26,7 +26,7 @@ type ScanSession struct {
 	StartedAt      time.Time `json:"started_at"`
 	CompletedAt    *time.Time `json:"completed_at,omitempty"`
 	TargetsScanned int       `json:"targets_scanned"`
-	portsScanned   int       `json:"ports_scanned"`
+	PortsScanned   int       `json:"ports_scanned"`
 	Status         string    `json:"status"`
 }
 
@@ -38,4 +38,28 @@ type CreateTargetRequest struct {
 type ScanResultWithTarget struct {
 	ScanResult
 	TargetDescription string `json:"target_description"`
+}
+
+type AWSCredentials struct {
+	ID              int       `json:"id"`
+	AccessKeyID     string    `json:"access_key_id"`
+	SecretAccessKey string    `json:"secret_access_key,omitempty"` // omit in responses for security
+	Region          string    `json:"region"`
+	CreatedAt       time.Time `json:"created_at"`
+	UpdatedAt       time.Time `json:"updated_at"`
+}
+
+type AWSCredentialsRequest struct {
+	AccessKeyID     string `json:"access_key_id"`
+	SecretAccessKey string `json:"secret_access_key"`
+	Region          string `json:"region"`
+}
+
+type AWSCredentialsResponse struct {
+	ID          int       `json:"id"`
+	AccessKeyID string    `json:"access_key_id"`
+	Region      string    `json:"region"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+	IsConfigured bool     `json:"is_configured"`
 }

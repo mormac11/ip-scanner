@@ -31,6 +31,16 @@ CREATE TABLE IF NOT EXISTS scan_sessions (
     status VARCHAR(20) DEFAULT 'running' -- 'running', 'completed', 'failed'
 );
 
+-- AWS credentials table (stores AWS configuration)
+CREATE TABLE IF NOT EXISTS aws_credentials (
+    id SERIAL PRIMARY KEY,
+    access_key_id VARCHAR(255) NOT NULL,
+    secret_access_key VARCHAR(255) NOT NULL,
+    region VARCHAR(50) DEFAULT 'us-east-1',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Add indexes for performance
 CREATE INDEX IF NOT EXISTS idx_scan_targets_enabled ON scan_targets(enabled);
 CREATE INDEX IF NOT EXISTS idx_scan_results_target_id ON scan_results(target_id);

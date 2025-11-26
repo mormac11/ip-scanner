@@ -1,0 +1,80 @@
+.target-list table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.target-list th {
+  background: #f5f5f5;
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.target-list td {
+  padding: 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.target-list tr:hover {
+  background: #fafafa;
+}
+
+.target-list tr.disabled {
+  opacity: 0.6;
+}
+
+.target-address {
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  color: #667eea;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.status-badge.enabled {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-badge.disabled {
+  background: #fafafa;
+  color: #757575;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-small {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s;
+}
+
+.btn-toggle {
+  background: #e3f2fd;
+}
+
+.btn-toggle:hover {
+  background: #bbdefb;
+}
+
+.btn-delete {
+  background: #ffebee;
+}
+
+.btn-delete:hover {
+  background: #ffcdd2;
+}

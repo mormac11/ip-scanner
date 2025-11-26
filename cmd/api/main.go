@@ -1,8 +1,6 @@
 package main
 
 import (
-	"database/sql"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -32,6 +30,7 @@ func main() {
 	// Initialize handlers
 	targetHandler := handlers.NewTargetHandler(db)
 	resultsHandler := handlers.NewResultsHandler(db)
+	awsHandler := handlers.NewAWSHandler(db)
 
 	// Health check endpoint
 	router.HandleFunc("/health", handlers.HealthCheck(db)).Methods("GET")
@@ -54,6 +53,12 @@ func main() {
 	api.HandleFunc("/results/open", resultsHandler.GetOpenPorts).Methods("GET")
 	api.HandleFunc("/results/ip", resultsHandler.GetResultsByIP).Methods("GET")
 	api.HandleFunc("/results/sessions", resultsHandler.GetScanSessions).Methods("GET")
+
+	// AWS integration endpoints
+	api.HandleFunc("/aws/credentials", awsHandler.GetCredentials).Methods("GET")
+	api.HandleFunc("/aws/credentials", awsHandler.SaveCredentials).Methods("POST")
+	api.HandleFunc("/aws/credentials", awsHandler.DeleteCredentials).Methods("DELETE")
+	api.HandleFunc("/aws/sync", awsHandler.SyncAWS).Methods("POST")
 
 	// CORS middleware for future React frontend
 	router.Use(corsMiddleware)

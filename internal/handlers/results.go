@@ -163,7 +163,7 @@ func (h *ResultsHandler) GetScanSessions(w http.ResponseWriter, r *http.Request)
 		var session models.ScanSession
 		err := rows.Scan(
 			&session.ID, &session.StartedAt, &session.CompletedAt,
-			&session.TargetsScanned, &session.portsScanned, &session.Status,
+			&session.TargetsScanned, &session.PortsScanned, &session.Status,
 		)
 		if err != nil {
 			http.Error(w, "Failed to parse sessions", http.StatusInternalServerError)
