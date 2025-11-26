@@ -21,17 +21,17 @@
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
-  transition: all 0.3s;
+  transition: all 0.4s ease;
 }
 
 .toggle-btn:hover {
-  border-color: #667eea;
+  border-color: #116dff;
 }
 
 .toggle-btn.active {
-  background: #667eea;
+  background: #116dff;
   color: white;
-  border-color: #667eea;
+  border-color: #116dff;
 }
 
 .refresh-btn {
@@ -41,7 +41,7 @@
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
-  transition: all 0.3s;
+  transition: all 0.4s ease;
 }
 
 .refresh-btn:hover {
@@ -79,7 +79,7 @@
 .ip-header h3 {
   margin: 0;
   font-family: 'Courier New', monospace;
-  color: #667eea;
+  color: #116dff;
 }
 
 .port-count {

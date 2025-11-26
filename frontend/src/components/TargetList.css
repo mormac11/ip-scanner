@@ -28,7 +28,7 @@
 .target-address {
   font-family: 'Courier New', monospace;
   font-weight: 600;
-  color: #667eea;
+  color: #116dff;
 }
 
 .status-badge {
@@ -60,7 +60,7 @@
   border-radius: 4px;
   cursor: pointer;
   font-size: 16px;
-  transition: all 0.2s;
+  transition: all 0.4s ease;
 }
 
 .btn-toggle {

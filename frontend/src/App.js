@@ -5,6 +5,7 @@ import AddTarget from './components/AddTarget';
 import TargetList from './components/TargetList';
 import ScanResults from './components/ScanResults';
 import AWSCredentialsForm from './components/AWSCredentialsForm';
+import Support from './components/Support';
 
 function App() {
   const [activeTab, setActiveTab] = useState('targets');
@@ -112,6 +113,12 @@ function App() {
         >
           ⚙️ Settings
         </button>
+        <button
+          className={`tab ${activeTab === 'support' ? 'active' : ''}`}
+          onClick={() => setActiveTab('support')}
+        >
+          ❓ Support
+        </button>
       </div>
 
       {error && <div className="error">{error}</div>}
@@ -200,6 +207,12 @@ function App() {
               Scans common ports every 15 minutes
             </p>
           </div>
+        </div>
+      )}
+
+      {activeTab === 'support' && (
+        <div className="section">
+          <Support />
         </div>
       )}
     </div>

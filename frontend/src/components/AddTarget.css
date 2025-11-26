@@ -22,12 +22,12 @@
   border: 2px solid #e0e0e0;
   border-radius: 6px;
   font-size: 16px;
-  transition: border-color 0.3s;
+  transition: border-color 0.4s ease;
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #116dff;
 }
 
 .form-group input:disabled {
@@ -43,7 +43,7 @@
 }
 
 .btn-primary {
-  background: #667eea;
+  background: #116dff;
   color: white;
   padding: 12px 30px;
   border: none;
@@ -51,11 +51,11 @@
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: background 0.4s ease;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #5568d3;
+  background: #0056d9;
 }
 
 .btn-primary:disabled {

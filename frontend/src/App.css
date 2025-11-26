@@ -5,7 +5,7 @@
 }
 
 .App-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #116dff;
   color: white;
   padding: 30px;
   border-radius: 10px;
@@ -36,17 +36,17 @@
   border-radius: 8px;
   cursor: pointer;
   font-size: 16px;
-  transition: all 0.3s;
+  transition: all 0.4s ease;
 }
 
 .tab:hover {
-  border-color: #667eea;
+  border-color: #116dff;
 }
 
 .tab.active {
-  background: #667eea;
+  background: #116dff;
   color: white;
-  border-color: #667eea;
+  border-color: #116dff;
 }
 
 .section {
@@ -59,7 +59,7 @@
 .section h2 {
   margin-top: 0;
   color: #333;
-  border-bottom: 2px solid #667eea;
+  border-bottom: 2px solid #116dff;
   padding-bottom: 10px;
   margin-bottom: 20px;
 }
