@@ -1,0 +1,36 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+LICENSE
+
+# Docker
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# Development
+.vscode
+.idea
+*.swp
+*.swo
+
+# Binaries
+*.exe
+*.dll
+*.so
+*.dylib
+main
+
+# Test
+*.test
+coverage.txt
+
+# Dependencies
+vendor/
+
+# Environment
+.env
+.env.local
