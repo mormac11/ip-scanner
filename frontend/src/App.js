@@ -144,10 +144,10 @@ function App() {
             </div>
             <h2 style={{ textAlign: 'center', marginBottom: '1rem' }}>Welcome</h2>
             <p style={{ textAlign: 'center', color: '#6b7280', marginBottom: '2rem' }}>
-              Sign in with your Azure account to access the IP Scanner
+              Sign in to access the IP Scanner
             </p>
             <button className="btn btn-primary" onClick={handleLogin} style={{ width: '100%' }}>
-              Sign in with Microsoft
+              Sign In
             </button>
           </div>
         </div>
