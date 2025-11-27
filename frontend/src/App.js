@@ -97,6 +97,20 @@ function App() {
     setTimeout(() => setSuccess(''), 3000);
   };
 
+  const handleSyncAWS = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const result = await api.syncAWS();
+      showSuccess(`AWS sync complete! Added ${result.added} new targets, removed ${result.removed} targets. Total: ${result.total_aws_ips} AWS IPs.`);
+      await loadTargets();
+    } catch (err) {
+      setError('Failed to sync AWS: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getPageTitle = () => {
     switch(activeTab) {
       case 'targets': return { title: 'Manage Targets', subtitle: 'Add and configure IP addresses and subnets to scan' };
@@ -276,6 +290,35 @@ function App() {
                   onSuccess={showSuccess}
                   onError={setError}
                 />
+              </div>
+
+              <div className="card">
+                <div className="card-header">
+                  <h3 className="card-title">Manual AWS Sync</h3>
+                  <p className="card-subtitle">Manually trigger AWS EC2 instance synchronization</p>
+                </div>
+                <div style={{ marginTop: '16px' }}>
+                  <p style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '16px', lineHeight: '1.6' }}>
+                    Synchronize your scan targets with AWS EC2 instances. This will automatically add public IP addresses from your running EC2 instances and remove IPs from terminated instances.
+                  </p>
+                  <button
+                    onClick={handleSyncAWS}
+                    disabled={loading}
+                    style={{
+                      padding: '12px 24px',
+                      background: loading ? '#9ca3af' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      cursor: loading ? 'not-allowed' : 'pointer',
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    {loading ? '⏳ Syncing...' : '☁️ Sync from AWS EC2'}
+                  </button>
+                </div>
               </div>
 
               <div className="card">
