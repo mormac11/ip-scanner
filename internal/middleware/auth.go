@@ -126,12 +126,16 @@ func validateToken(tokenString string) (*AzureADClaims, error) {
 		return nil, errors.New("invalid claims type")
 	}
 
-	// Verify issuer
-	expectedIssuer := fmt.Sprintf("%s/realms/%s", keycloakURL, realm)
-	if claims.Issuer != expectedIssuer {
-		log.Printf("Invalid issuer. Expected: %s, Got: %s", expectedIssuer, claims.Issuer)
+	// Verify issuer - accept both internal Docker URL and external localhost URL
+	expectedIssuerInternal := fmt.Sprintf("%s/realms/%s", keycloakURL, realm)
+	expectedIssuerExternal := fmt.Sprintf("http://localhost:8081/realms/%s", realm)
+
+	validIssuer := claims.Issuer == expectedIssuerInternal || claims.Issuer == expectedIssuerExternal
+	if !validIssuer {
+		log.Printf("Invalid issuer. Expected: %s or %s, Got: %s", expectedIssuerInternal, expectedIssuerExternal, claims.Issuer)
 		return nil, fmt.Errorf("invalid issuer: %s", claims.Issuer)
 	}
+	log.Printf("Issuer validated: %s", claims.Issuer)
 
 	// Verify audience
 	validAudience := false
