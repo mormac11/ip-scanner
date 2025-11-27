@@ -89,6 +89,13 @@ export const api = {
     return response.json();
   },
 
+  async getChangeHistory() {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_URL}/results/changes`, { headers });
+    if (!response.ok) throw new Error('Failed to fetch change history');
+    return response.json();
+  },
+
   // AWS integration
   async getAWSCredentials() {
     const headers = await getAuthHeaders();
@@ -97,24 +104,47 @@ export const api = {
     return response.json();
   },
 
-  async saveAWSCredentials(accessKeyId, secretAccessKey, region) {
+  async saveAWSCredentials(accountName, accessKeyId, secretAccessKey, region) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_URL}/aws/credentials`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
+        account_name: accountName,
         access_key_id: accessKeyId,
         secret_access_key: secretAccessKey,
         region: region,
       }),
     });
-    if (!response.ok) throw new Error('Failed to save AWS credentials');
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || 'Failed to save AWS credentials');
+    }
     return response.json();
   },
 
-  async deleteAWSCredentials() {
+  async updateAWSCredentials(id, accountName, accessKeyId, secretAccessKey, region) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_URL}/aws/credentials`, {
+    const response = await fetch(`${API_URL}/aws/credentials/${id}`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({
+        account_name: accountName,
+        access_key_id: accessKeyId,
+        secret_access_key: secretAccessKey,
+        region: region,
+      }),
+    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || 'Failed to update AWS credentials');
+    }
+    return response.json();
+  },
+
+  async deleteAWSCredentials(id) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_URL}/aws/credentials/${id}`, {
       method: 'DELETE',
       headers,
     });
@@ -128,6 +158,76 @@ export const api = {
       headers,
     });
     if (!response.ok) throw new Error('Failed to sync AWS EC2 instances');
+    return response.json();
+  },
+
+  // Notifications
+  async getNotifications(unreadOnly = false) {
+    const headers = await getAuthHeaders();
+    const url = unreadOnly ? `${API_URL}/notifications?unread_only=true` : `${API_URL}/notifications`;
+    const response = await fetch(url, { headers });
+    if (!response.ok) throw new Error('Failed to fetch notifications');
+    return response.json();
+  },
+
+  async getUnreadCount() {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_URL}/notifications/unread/count`, { headers });
+    if (!response.ok) throw new Error('Failed to fetch unread count');
+    return response.json();
+  },
+
+  async markNotificationAsRead(id) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_URL}/notifications/${id}/read`, {
+      method: 'PUT',
+      headers,
+    });
+    if (!response.ok) throw new Error('Failed to mark notification as read');
+  },
+
+  async markAllNotificationsAsRead() {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_URL}/notifications/read-all`, {
+      method: 'PUT',
+      headers,
+    });
+    if (!response.ok) throw new Error('Failed to mark all notifications as read');
+  },
+
+  async deleteNotification(id) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_URL}/notifications/${id}`, {
+      method: 'DELETE',
+      headers,
+    });
+    if (!response.ok) throw new Error('Failed to delete notification');
+  },
+
+  async deleteAllReadNotifications() {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_URL}/notifications/read`, {
+      method: 'DELETE',
+      headers,
+    });
+    if (!response.ok) throw new Error('Failed to delete read notifications');
+  },
+
+  // Scan operations
+  async getScanStatus() {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_URL}/scan/status`, { headers });
+    if (!response.ok) throw new Error('Failed to fetch scan status');
+    return response.json();
+  },
+
+  async triggerScan() {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_URL}/scan/trigger`, {
+      method: 'POST',
+      headers,
+    });
+    if (!response.ok) throw new Error('Failed to trigger scan');
     return response.json();
   },
 };

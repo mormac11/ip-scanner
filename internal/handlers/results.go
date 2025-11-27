@@ -193,3 +193,92 @@ func (h *ResultsHandler) GetScanSessions(w http.ResponseWriter, r *http.Request)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(sessions)
 }
+
+// PortChange represents a detected change in port status
+type PortChange struct {
+	IPAddress       string    `json:"ip_address"`
+	Port            int       `json:"port"`
+	PreviousStatus  string    `json:"previous_status"`
+	NewStatus       string    `json:"new_status"`
+	ChangeType      string    `json:"change_type"` // "opened" or "closed"
+	DetectedAt      string    `json:"detected_at"`
+	TargetID        int       `json:"target_id"`
+	TargetDesc      string    `json:"target_description"`
+}
+
+// GetChangeHistory handles GET /api/v1/results/changes
+func (h *ResultsHandler) GetChangeHistory(w http.ResponseWriter, r *http.Request) {
+	// Query to detect all port status changes
+	rows, err := h.db.Query(`
+		WITH ranked_results AS (
+			SELECT
+				sr.ip_address,
+				sr.port,
+				sr.status,
+				sr.scanned_at,
+				sr.target_id,
+				st.description as target_description,
+				LAG(sr.status) OVER (PARTITION BY sr.ip_address, sr.port ORDER BY sr.scanned_at) as previous_status
+			FROM scan_results sr
+			JOIN scan_targets st ON sr.target_id = st.id
+			ORDER BY sr.scanned_at DESC
+		)
+		SELECT
+			ip_address,
+			port,
+			previous_status,
+			status as new_status,
+			CASE
+				WHEN previous_status = 'closed' AND status = 'open' THEN 'opened'
+				WHEN previous_status = 'open' AND status = 'closed' THEN 'closed'
+				ELSE 'unknown'
+			END as change_type,
+			scanned_at,
+			target_id,
+			target_description
+		FROM ranked_results
+		WHERE previous_status IS NOT NULL
+		  AND previous_status != status
+		ORDER BY scanned_at DESC
+		LIMIT 200
+	`)
+	if err != nil {
+		http.Error(w, "Failed to fetch change history: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	changes := []PortChange{}
+	for rows.Next() {
+		var change PortChange
+		var previousStatus sql.NullString
+
+		err := rows.Scan(
+			&change.IPAddress,
+			&change.Port,
+			&previousStatus,
+			&change.NewStatus,
+			&change.ChangeType,
+			&change.DetectedAt,
+			&change.TargetID,
+			&change.TargetDesc,
+		)
+		if err != nil {
+			http.Error(w, "Failed to parse change history: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if previousStatus.Valid {
+			change.PreviousStatus = previousStatus.String
+		}
+
+		changes = append(changes, change)
+	}
+
+	if changes == nil {
+		changes = []PortChange{}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(changes)
+}

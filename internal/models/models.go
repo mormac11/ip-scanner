@@ -43,6 +43,7 @@ type ScanResultWithTarget struct {
 
 type AWSCredentials struct {
 	ID              int       `json:"id"`
+	AccountName     string    `json:"account_name"`
 	AccessKeyID     string    `json:"access_key_id"`
 	SecretAccessKey string    `json:"secret_access_key,omitempty"` // omit in responses for security
 	Region          string    `json:"region"`
@@ -51,16 +52,30 @@ type AWSCredentials struct {
 }
 
 type AWSCredentialsRequest struct {
+	AccountName     string `json:"account_name"`
 	AccessKeyID     string `json:"access_key_id"`
 	SecretAccessKey string `json:"secret_access_key"`
 	Region          string `json:"region"`
 }
 
 type AWSCredentialsResponse struct {
+	ID           int       `json:"id"`
+	AccountName  string    `json:"account_name"`
+	AccessKeyID  string    `json:"access_key_id"`
+	Region       string    `json:"region"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+}
+
+type Notification struct {
 	ID          int       `json:"id"`
-	AccessKeyID string    `json:"access_key_id"`
-	Region      string    `json:"region"`
+	Type        string    `json:"type"`
+	Title       string    `json:"title"`
+	Message     string    `json:"message"`
+	Severity    string    `json:"severity"`
+	IPAddress   string    `json:"ip_address,omitempty"`
+	Port        *int      `json:"port,omitempty"`
+	TargetID    *int      `json:"target_id,omitempty"`
+	IsRead      bool      `json:"is_read"`
 	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	IsConfigured bool     `json:"is_configured"`
 }

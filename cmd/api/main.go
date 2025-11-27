@@ -28,10 +28,20 @@ func main() {
 	// Initialize router
 	router := mux.NewRouter()
 
+	// Start the scheduler for periodic scans (every 15 minutes)
+	scanScheduler := scheduler.NewScheduler(db, 15*time.Minute)
+	scanScheduler.Start()
+
+	// Start the AWS sync scheduler (every 1 hour)
+	awsScheduler := scheduler.NewAWSScheduler(db, 1*time.Hour)
+	awsScheduler.Start()
+
 	// Initialize handlers
 	targetHandler := handlers.NewTargetHandler(db)
 	resultsHandler := handlers.NewResultsHandler(db)
 	awsHandler := handlers.NewAWSHandler(db)
+	notificationHandler := handlers.NewNotificationHandler(db)
+	scanHandler := handlers.NewScanHandler(scanScheduler)
 
 	// Health check endpoint
 	router.HandleFunc("/health", handlers.HealthCheck(db)).Methods("GET")
@@ -58,23 +68,29 @@ func main() {
 	api.HandleFunc("/results/open", resultsHandler.GetOpenPorts).Methods("GET")
 	api.HandleFunc("/results/ip", resultsHandler.GetResultsByIP).Methods("GET")
 	api.HandleFunc("/results/sessions", resultsHandler.GetScanSessions).Methods("GET")
+	api.HandleFunc("/results/changes", resultsHandler.GetChangeHistory).Methods("GET")
 
 	// AWS integration endpoints
 	api.HandleFunc("/aws/credentials", awsHandler.GetCredentials).Methods("GET")
 	api.HandleFunc("/aws/credentials", awsHandler.SaveCredentials).Methods("POST")
-	api.HandleFunc("/aws/credentials", awsHandler.DeleteCredentials).Methods("DELETE")
+	api.HandleFunc("/aws/credentials/{id}", awsHandler.UpdateCredentials).Methods("PUT")
+	api.HandleFunc("/aws/credentials/{id}", awsHandler.DeleteCredentials).Methods("DELETE")
 	api.HandleFunc("/aws/sync", awsHandler.SyncAWS).Methods("POST")
+
+	// Notification endpoints
+	api.HandleFunc("/notifications", notificationHandler.GetNotifications).Methods("GET")
+	api.HandleFunc("/notifications/unread/count", notificationHandler.GetUnreadCount).Methods("GET")
+	api.HandleFunc("/notifications/{id}/read", notificationHandler.MarkAsRead).Methods("PUT")
+	api.HandleFunc("/notifications/read-all", notificationHandler.MarkAllAsRead).Methods("PUT")
+	api.HandleFunc("/notifications/{id}", notificationHandler.DeleteNotification).Methods("DELETE")
+	api.HandleFunc("/notifications/read", notificationHandler.DeleteAllRead).Methods("DELETE")
+
+	// Scan endpoints
+	api.HandleFunc("/scan/status", scanHandler.GetStatus).Methods("GET")
+	api.HandleFunc("/scan/trigger", scanHandler.TriggerScan).Methods("POST")
 
 	// CORS middleware for future React frontend
 	router.Use(corsMiddleware)
-
-	// Start the scheduler for periodic scans (every 15 minutes)
-	scanScheduler := scheduler.NewScheduler(db, 15*time.Minute)
-	scanScheduler.Start()
-
-	// Start the AWS sync scheduler (every 1 hour)
-	awsScheduler := scheduler.NewAWSScheduler(db, 1*time.Hour)
-	awsScheduler.Start()
 
 	port := os.Getenv("PORT")
 	if port == "" {

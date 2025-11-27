@@ -4,7 +4,9 @@ import { api, setTokenProvider } from './api';
 import AddTarget from './components/AddTarget';
 import TargetList from './components/TargetList';
 import ScanResults from './components/ScanResults';
+import ChangeHistory from './components/ChangeHistory';
 import AWSCredentialsForm from './components/AWSCredentialsForm';
+import Notifications from './components/Notifications';
 import Support from './components/Support';
 import { useAuth } from 'react-oidc-context';
 
@@ -15,6 +17,8 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [scanning, setScanning] = useState(false);
 
   const handleLogin = () => {
     auth.signinRedirect().catch(e => {
@@ -42,6 +46,16 @@ function App() {
   useEffect(() => {
     if (auth.isAuthenticated) {
       loadTargets();
+      loadUnreadCount();
+      loadScanStatus();
+      // Poll for unread count every 30 seconds
+      const unreadInterval = setInterval(loadUnreadCount, 30000);
+      // Poll for scan status every 2 seconds
+      const scanInterval = setInterval(loadScanStatus, 2000);
+      return () => {
+        clearInterval(unreadInterval);
+        clearInterval(scanInterval);
+      };
     }
   }, [auth.isAuthenticated]);
 
@@ -55,6 +69,38 @@ function App() {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadUnreadCount = async () => {
+    try {
+      const data = await api.getUnreadCount();
+      setUnreadCount(data.count || 0);
+    } catch (err) {
+      console.error('Failed to load unread count:', err);
+    }
+  };
+
+  const loadScanStatus = async () => {
+    try {
+      const data = await api.getScanStatus();
+      setScanning(data.scanning || false);
+    } catch (err) {
+      console.error('Failed to load scan status:', err);
+    }
+  };
+
+  const handleTriggerScan = async () => {
+    try {
+      const result = await api.triggerScan();
+      if (result.success) {
+        showSuccess('Scan started successfully!');
+        loadScanStatus();
+      } else {
+        setError(result.message || 'Scan already in progress');
+      }
+    } catch (err) {
+      setError('Failed to trigger scan: ' + err.message);
     }
   };
 
@@ -115,6 +161,8 @@ function App() {
     switch(activeTab) {
       case 'targets': return { title: 'Manage Targets', subtitle: 'Add and configure IP addresses and subnets to scan' };
       case 'results': return { title: 'Scan Results', subtitle: 'View port scan results and open ports' };
+      case 'changes': return { title: 'Change History', subtitle: 'View all detected port status changes' };
+      case 'notifications': return { title: 'Notifications', subtitle: 'View alerts and system notifications' };
       case 'settings': return { title: 'Settings', subtitle: 'Configure AWS credentials and application settings' };
       case 'support': return { title: 'Support', subtitle: 'Documentation, guides, and troubleshooting help' };
       default: return { title: '', subtitle: '' };
@@ -198,6 +246,38 @@ function App() {
             <span>Scan Results</span>
           </button>
           <button
+            className={`nav-item ${activeTab === 'changes' ? 'active' : ''}`}
+            onClick={() => setActiveTab('changes')}
+          >
+            <span className="nav-item-icon">📋</span>
+            <span>Change History</span>
+          </button>
+          <button
+            className={`nav-item ${activeTab === 'notifications' ? 'active' : ''}`}
+            onClick={() => setActiveTab('notifications')}
+            style={{ position: 'relative' }}
+          >
+            <span className="nav-item-icon">🔔</span>
+            <span>Notifications</span>
+            {unreadCount > 0 && (
+              <span style={{
+                position: 'absolute',
+                top: '8px',
+                right: '8px',
+                background: '#ef4444',
+                color: 'white',
+                fontSize: '11px',
+                fontWeight: '600',
+                padding: '2px 6px',
+                borderRadius: '10px',
+                minWidth: '18px',
+                textAlign: 'center'
+              }}>
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
+          </button>
+          <button
             className={`nav-item ${activeTab === 'settings' ? 'active' : ''}`}
             onClick={() => setActiveTab('settings')}
           >
@@ -257,6 +337,55 @@ function App() {
                 </p>
               </div>
 
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '16px',
+                padding: '12px 16px',
+                background: scanning ? '#fef3c7' : '#f0f9ff',
+                border: scanning ? '1px solid #fcd34d' : '1px solid #bfdbfe',
+                borderRadius: '8px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  {scanning ? (
+                    <>
+                      <div style={{
+                        width: '20px',
+                        height: '20px',
+                        border: '3px solid #f59e0b',
+                        borderTopColor: 'transparent',
+                        borderRadius: '50%',
+                        animation: 'spin 1s linear infinite'
+                      }}></div>
+                      <span style={{ color: '#92400e', fontWeight: '600' }}>Scan in progress...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span style={{ fontSize: '20px' }}>✓</span>
+                      <span style={{ color: '#1e40af', fontWeight: '600' }}>Ready to scan</span>
+                    </>
+                  )}
+                </div>
+                <button
+                  onClick={handleTriggerScan}
+                  disabled={scanning}
+                  style={{
+                    padding: '10px 20px',
+                    background: scanning ? '#9ca3af' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: scanning ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  {scanning ? 'Scanning...' : '▶ Scan Now'}
+                </button>
+              </div>
+
               <div className="card">
                 <div className="card-header">
                   <h3 className="card-title">Configured Targets</h3>
@@ -275,6 +404,18 @@ function App() {
           {activeTab === 'results' && (
             <div className="card">
               <ScanResults api={api} />
+            </div>
+          )}
+
+          {activeTab === 'changes' && (
+            <div className="card">
+              <ChangeHistory api={api} onError={setError} />
+            </div>
+          )}
+
+          {activeTab === 'notifications' && (
+            <div className="card">
+              <Notifications api={api} onError={setError} />
             </div>
           )}
 

@@ -13,18 +13,14 @@ var CommonPorts = []int{
 	25,    // SMTP
 	53,    // DNS
 	80,    // HTTP
-	110,   // POP3
 	143,   // IMAP
 	443,   // HTTPS
 	445,   // SMB
 	3306,  // MySQL
 	3389,  // RDP
-	5432,  // PostgreSQL
 	5900,  // VNC
-	6379,  // Redis
 	8080,  // HTTP Alt
 	8443,  // HTTPS Alt
-	27017, // MongoDB
 }
 
 type PortScanResult struct {
@@ -61,13 +57,43 @@ func ScanPort(ip string, port int, timeout time.Duration) PortScanResult {
 	return result
 }
 
-// ScanIP scans all common ports on a single IP address
+// ScanIP scans all common ports on a single IP address (sequential)
 func ScanIP(ip string, ports []int, timeout time.Duration) []PortScanResult {
 	results := make([]PortScanResult, 0, len(ports))
 
 	for _, port := range ports {
 		result := ScanPort(ip, port, timeout)
 		results = append(results, result)
+	}
+
+	return results
+}
+
+// ScanIPParallel scans all ports on a single IP address concurrently
+func ScanIPParallel(ip string, ports []int, timeout time.Duration) []PortScanResult {
+	results := make([]PortScanResult, len(ports))
+
+	// Use a channel to collect results
+	resultChan := make(chan struct {
+		index  int
+		result PortScanResult
+	}, len(ports))
+
+	// Scan each port concurrently
+	for i, port := range ports {
+		go func(index int, p int) {
+			result := ScanPort(ip, p, timeout)
+			resultChan <- struct {
+				index  int
+				result PortScanResult
+			}{index, result}
+		}(i, port)
+	}
+
+	// Collect all results
+	for i := 0; i < len(ports); i++ {
+		res := <-resultChan
+		results[res.index] = res.result
 	}
 
 	return results
