@@ -6,12 +6,10 @@ import TargetList from './components/TargetList';
 import ScanResults from './components/ScanResults';
 import AWSCredentialsForm from './components/AWSCredentialsForm';
 import Support from './components/Support';
-import { useMsal, useIsAuthenticated } from '@azure/msal-react';
-import { loginRequest, tokenRequest } from './authConfig';
+import { useAuth } from 'react-oidc-context';
 
 function App() {
-  const { instance, accounts } = useMsal();
-  const isAuthenticated = useIsAuthenticated();
+  const auth = useAuth();
   const [activeTab, setActiveTab] = useState('targets');
   const [targets, setTargets] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,14 +17,14 @@ function App() {
   const [success, setSuccess] = useState('');
 
   const handleLogin = () => {
-    instance.loginPopup(loginRequest).catch(e => {
+    auth.signinRedirect().catch(e => {
       console.error('Login error:', e);
       setError('Failed to sign in. Please try again.');
     });
   };
 
   const handleLogout = () => {
-    instance.logoutPopup().catch(e => {
+    auth.signoutRedirect().catch(e => {
       console.error('Logout error:', e);
     });
   };
@@ -34,27 +32,18 @@ function App() {
   useEffect(() => {
     // Set up the token provider for API calls
     setTokenProvider(async () => {
-      if (accounts.length > 0) {
-        try {
-          const response = await instance.acquireTokenSilent({
-            ...tokenRequest,
-            account: accounts[0]
-          });
-          return response.accessToken;
-        } catch (error) {
-          console.error('Failed to acquire token silently:', error);
-          return null;
-        }
+      if (auth.user && auth.user.access_token) {
+        return auth.user.access_token;
       }
       return null;
     });
-  }, [instance, accounts]);
+  }, [auth.user]);
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (auth.isAuthenticated) {
       loadTargets();
     }
-  }, [isAuthenticated]);
+  }, [auth.isAuthenticated]);
 
   const loadTargets = async () => {
     try {
@@ -120,7 +109,28 @@ function App() {
 
   const pageInfo = getPageTitle();
 
-  if (!isAuthenticated) {
+  // Handle authentication loading and errors
+  if (auth.isLoading) {
+    return <div className="loading">Loading authentication...</div>;
+  }
+
+  if (auth.error) {
+    return (
+      <div className="App">
+        <div className="login-container">
+          <div className="login-card">
+            <h2 style={{ color: '#dc2626' }}>Authentication Error</h2>
+            <p>{auth.error.message}</p>
+            <button className="btn btn-primary" onClick={() => window.location.reload()}>
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!auth.isAuthenticated) {
     return (
       <div className="App">
         <div className="login-container">
@@ -192,10 +202,10 @@ function App() {
         <div className="sidebar-footer">
           <div className="user-profile">
             <div className="user-info">
-              <div className="user-avatar">{accounts[0]?.name?.charAt(0) || 'U'}</div>
+              <div className="user-avatar">{auth.user?.profile?.name?.charAt(0) || auth.user?.profile?.preferred_username?.charAt(0) || 'U'}</div>
               <div className="user-details">
-                <div className="user-name">{accounts[0]?.name || 'User'}</div>
-                <div className="user-email">{accounts[0]?.username || ''}</div>
+                <div className="user-name">{auth.user?.profile?.name || auth.user?.profile?.preferred_username || 'User'}</div>
+                <div className="user-email">{auth.user?.profile?.email || ''}</div>
               </div>
             </div>
             <button className="btn-logout" onClick={handleLogout} title="Sign out">

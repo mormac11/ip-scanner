@@ -1,20 +1,14 @@
-export const msalConfig = {
-  auth: {
-    clientId: process.env.REACT_APP_AZURE_CLIENT_ID || '',
-    authority: `https://login.microsoftonline.com/${process.env.REACT_APP_AZURE_TENANT_ID || 'common'}`,
-    redirectUri: process.env.REACT_APP_REDIRECT_URI || window.location.origin,
-  },
-  cache: {
-    cacheLocation: 'sessionStorage',
-    storeAuthStateInCookie: false,
-  }
-};
+const keycloakUrl = process.env.REACT_APP_KEYCLOAK_URL || 'http://localhost:8081';
+const realm = process.env.REACT_APP_KEYCLOAK_REALM || 'ipscanner';
+const clientId = process.env.REACT_APP_KEYCLOAK_CLIENT_ID || 'ipscanner-frontend';
+const redirectUri = process.env.REACT_APP_REDIRECT_URI || window.location.origin;
 
-export const loginRequest = {
-  scopes: ['User.Read']
-};
-
-export const tokenRequest = {
-  scopes: ['User.Read'],
-  forceRefresh: false
+export const oidcConfig = {
+  authority: `${keycloakUrl}/realms/${realm}`,
+  client_id: clientId,
+  redirect_uri: redirectUri,
+  response_type: 'code',
+  scope: 'openid profile email',
+  automaticSilentRenew: true,
+  loadUserInfo: true,
 };

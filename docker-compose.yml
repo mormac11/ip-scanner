@@ -12,12 +12,42 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./init-keycloak.sql:/docker-entrypoint-initdb.d/02-init-keycloak.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0
+    container_name: ip-scanner-keycloak
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: postgres
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_PORT: 8081
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+      KC_HTTP_ENABLED: true
+      KC_HEALTH_ENABLED: true
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8081:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: start-dev
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080;echo -e \"GET /health/ready HTTP/1.1\r\nhost: 127.0.0.1:8080\r\nConnection: close\r\n\r\n\" >&3;grep \"HTTP/1.1 200 OK\" <&3"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    restart: unless-stopped
 
   api:
     build:
@@ -31,9 +61,10 @@ services:
       DB_USER: postgres
       DB_PASSWORD: postgres
       DB_NAME: ipscanner
-      # Azure AD Configuration
-      AZURE_TENANT_ID: ${AZURE_TENANT_ID}
-      AZURE_CLIENT_ID: ${AZURE_CLIENT_ID}
+      # Keycloak Configuration
+      KEYCLOAK_URL: ${KEYCLOAK_URL:-http://keycloak:8080}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-ipscanner}
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-ipscanner-api}
       # AWS credentials - these will be picked up from host environment
       # Set AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_REGION on your host
       # or configure AWS credentials in ~/.aws/credentials
@@ -52,8 +83,9 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        REACT_APP_AZURE_CLIENT_ID: ${AZURE_CLIENT_ID}
-        REACT_APP_AZURE_TENANT_ID: ${AZURE_TENANT_ID}
+        REACT_APP_KEYCLOAK_URL: ${KEYCLOAK_URL:-http://localhost:8081}
+        REACT_APP_KEYCLOAK_REALM: ${KEYCLOAK_REALM:-ipscanner}
+        REACT_APP_KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-ipscanner-frontend}
         REACT_APP_REDIRECT_URI: ${REACT_APP_REDIRECT_URI:-http://localhost:3000}
         REACT_APP_API_URL: ${REACT_APP_API_URL:-/api/v1}
     container_name: ip-scanner-frontend

@@ -10,7 +10,7 @@ import (
 
 	"ip-scanner/internal/database"
 	"ip-scanner/internal/handlers"
-	// "ip-scanner/internal/middleware" // DISABLED: Uncomment to enable authentication
+	"ip-scanner/internal/middleware"
 	"ip-scanner/internal/scheduler"
 
 	"github.com/gorilla/mux"
@@ -40,8 +40,7 @@ func main() {
 	api := router.PathPrefix("/api/v1").Subrouter()
 
 	// Apply JWT authentication middleware to all API routes
-	// DISABLED: Uncomment the line below to enable Azure AD authentication
-	// api.Use(middleware.JWTAuthMiddleware)
+	api.Use(middleware.JWTAuthMiddleware)
 
 	api.HandleFunc("/status", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

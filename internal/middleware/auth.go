@@ -75,14 +75,18 @@ func JWTAuthMiddleware(next http.Handler) http.Handler {
 }
 
 func validateToken(tokenString string) (*AzureADClaims, error) {
-	tenantID := os.Getenv("AZURE_TENANT_ID")
-	clientID := os.Getenv("AZURE_CLIENT_ID")
+	keycloakURL := os.Getenv("KEYCLOAK_URL")
+	realm := os.Getenv("KEYCLOAK_REALM")
+	clientID := os.Getenv("KEYCLOAK_CLIENT_ID")
 
-	if tenantID == "" {
-		return nil, errors.New("AZURE_TENANT_ID not configured")
+	if keycloakURL == "" {
+		return nil, errors.New("KEYCLOAK_URL not configured")
+	}
+	if realm == "" {
+		return nil, errors.New("KEYCLOAK_REALM not configured")
 	}
 	if clientID == "" {
-		return nil, errors.New("AZURE_CLIENT_ID not configured")
+		return nil, errors.New("KEYCLOAK_CLIENT_ID not configured")
 	}
 
 	// Parse token to get the kid (key ID) from header
@@ -99,7 +103,7 @@ func validateToken(tokenString string) (*AzureADClaims, error) {
 		}
 
 		// Get public key for this kid
-		publicKey, err := getPublicKey(kid, tenantID)
+		publicKey, err := getPublicKey(kid, keycloakURL, realm)
 		if err != nil {
 			log.Printf("Failed to get public key for kid %s: %v", kid, err)
 			return nil, err
@@ -123,24 +127,23 @@ func validateToken(tokenString string) (*AzureADClaims, error) {
 	}
 
 	// Verify issuer
-	expectedIssuer := fmt.Sprintf("https://login.microsoftonline.com/%s/v2.0", tenantID)
+	expectedIssuer := fmt.Sprintf("%s/realms/%s", keycloakURL, realm)
 	if claims.Issuer != expectedIssuer {
 		log.Printf("Invalid issuer. Expected: %s, Got: %s", expectedIssuer, claims.Issuer)
 		return nil, fmt.Errorf("invalid issuer: %s", claims.Issuer)
 	}
 
-	// Verify audience - accept either our client ID or Microsoft Graph
+	// Verify audience
 	validAudience := false
-	microsoftGraphID := "00000003-0000-0000-c000-000000000000"
 	for _, aud := range claims.Audience {
-		if aud == clientID || aud == fmt.Sprintf("api://%s", clientID) || aud == microsoftGraphID {
+		if aud == clientID {
 			validAudience = true
 			break
 		}
 	}
 
 	if !validAudience {
-		log.Printf("Invalid audience. Expected: %s or %s, Got: %v", clientID, microsoftGraphID, claims.Audience)
+		log.Printf("Invalid audience. Expected: %s, Got: %v", clientID, claims.Audience)
 		return nil, fmt.Errorf("invalid audience: %v", claims.Audience)
 	}
 
@@ -148,12 +151,12 @@ func validateToken(tokenString string) (*AzureADClaims, error) {
 	return claims, nil
 }
 
-func getPublicKey(kid, tenantID string) (*rsa.PublicKey, error) {
+func getPublicKey(kid, keycloakURL, realm string) (*rsa.PublicKey, error) {
 	// Check if we need to refresh keys
 	publicKeysMux.RLock()
 	if time.Since(lastKeyFetch) > keyFetchPeriod {
 		publicKeysMux.RUnlock()
-		if err := fetchPublicKeys(tenantID); err != nil {
+		if err := fetchPublicKeys(keycloakURL, realm); err != nil {
 			return nil, err
 		}
 		publicKeysMux.RLock()
@@ -164,7 +167,7 @@ func getPublicKey(kid, tenantID string) (*rsa.PublicKey, error) {
 
 	if !exists {
 		// Try fetching keys again in case they've been rotated
-		if err := fetchPublicKeys(tenantID); err != nil {
+		if err := fetchPublicKeys(keycloakURL, realm); err != nil {
 			return nil, err
 		}
 
@@ -180,8 +183,8 @@ func getPublicKey(kid, tenantID string) (*rsa.PublicKey, error) {
 	return key, nil
 }
 
-func fetchPublicKeys(tenantID string) error {
-	jwksURL := fmt.Sprintf("https://login.microsoftonline.com/%s/discovery/v2.0/keys", tenantID)
+func fetchPublicKeys(keycloakURL, realm string) error {
+	jwksURL := fmt.Sprintf("%s/realms/%s/protocol/openid-connect/certs", keycloakURL, realm)
 
 	resp, err := http.Get(jwksURL)
 	if err != nil {
@@ -218,7 +221,7 @@ func fetchPublicKeys(tenantID string) error {
 	lastKeyFetch = time.Now()
 	publicKeysMux.Unlock()
 
-	log.Printf("Fetched %d public keys from Azure AD", len(newKeys))
+	log.Printf("Fetched %d public keys from Keycloak", len(newKeys))
 	return nil
 }
 
