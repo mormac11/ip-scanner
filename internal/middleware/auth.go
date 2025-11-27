@@ -137,19 +137,20 @@ func validateToken(tokenString string) (*AzureADClaims, error) {
 	}
 	log.Printf("Issuer validated: %s", claims.Issuer)
 
-	// Verify audience
+	// Verify audience - accept our client ID or default Keycloak "account" audience
 	validAudience := false
 	for _, aud := range claims.Audience {
-		if aud == clientID {
+		if aud == clientID || aud == "account" {
 			validAudience = true
 			break
 		}
 	}
 
 	if !validAudience {
-		log.Printf("Invalid audience. Expected: %s, Got: %v", clientID, claims.Audience)
+		log.Printf("Invalid audience. Expected: %s or 'account', Got: %v", clientID, claims.Audience)
 		return nil, fmt.Errorf("invalid audience: %v", claims.Audience)
 	}
+	log.Printf("Audience validated: %v", claims.Audience)
 
 	log.Printf("Token validated successfully for user: %s", claims.PreferredUsername)
 	return claims, nil
