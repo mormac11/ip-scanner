@@ -28,10 +28,19 @@ func (h *ResultsHandler) GetLatestResults(w http.ResponseWriter, r *http.Request
 			FROM scan_results sr
 			JOIN scan_targets st ON sr.target_id = st.id
 			ORDER BY ip_address, port, scanned_at DESC
+		),
+		first_seen AS (
+			SELECT ip_address, port, MIN(scanned_at) as first_discovered_at
+			FROM scan_results
+			WHERE status = 'open'
+			GROUP BY ip_address, port
 		)
-		SELECT id, target_id, ip_address, port, status, scanned_at, response_time_ms, target_description
-		FROM latest_scans
-		ORDER BY ip_address, port
+		SELECT ls.id, ls.target_id, ls.ip_address, ls.port, ls.status,
+		       ls.scanned_at, ls.response_time_ms, ls.target_description,
+		       fs.first_discovered_at
+		FROM latest_scans ls
+		LEFT JOIN first_seen fs ON ls.ip_address = fs.ip_address AND ls.port = fs.port
+		ORDER BY ls.ip_address, ls.port
 	`)
 	if err != nil {
 		http.Error(w, "Failed to fetch results: "+err.Error(), http.StatusInternalServerError)
@@ -45,7 +54,7 @@ func (h *ResultsHandler) GetLatestResults(w http.ResponseWriter, r *http.Request
 		err := rows.Scan(
 			&result.ID, &result.TargetID, &result.IPAddress, &result.Port,
 			&result.Status, &result.ScannedAt, &result.ResponseTimeMs,
-			&result.TargetDescription,
+			&result.TargetDescription, &result.FirstDiscoveredAt,
 		)
 		if err != nil {
 			http.Error(w, "Failed to parse results", http.StatusInternalServerError)
@@ -113,11 +122,20 @@ func (h *ResultsHandler) GetOpenPorts(w http.ResponseWriter, r *http.Request) {
 			FROM scan_results sr
 			JOIN scan_targets st ON sr.target_id = st.id
 			ORDER BY ip_address, port, scanned_at DESC
+		),
+		first_seen AS (
+			SELECT ip_address, port, MIN(scanned_at) as first_discovered_at
+			FROM scan_results
+			WHERE status = 'open'
+			GROUP BY ip_address, port
 		)
-		SELECT id, target_id, ip_address, port, status, scanned_at, response_time_ms, target_description
-		FROM latest_scans
-		WHERE status = 'open'
-		ORDER BY ip_address, port
+		SELECT ls.id, ls.target_id, ls.ip_address, ls.port, ls.status,
+		       ls.scanned_at, ls.response_time_ms, ls.target_description,
+		       fs.first_discovered_at
+		FROM latest_scans ls
+		LEFT JOIN first_seen fs ON ls.ip_address = fs.ip_address AND ls.port = fs.port
+		WHERE ls.status = 'open'
+		ORDER BY ls.ip_address, ls.port
 	`)
 	if err != nil {
 		http.Error(w, "Failed to fetch results", http.StatusInternalServerError)
@@ -131,7 +149,7 @@ func (h *ResultsHandler) GetOpenPorts(w http.ResponseWriter, r *http.Request) {
 		err := rows.Scan(
 			&result.ID, &result.TargetID, &result.IPAddress, &result.Port,
 			&result.Status, &result.ScannedAt, &result.ResponseTimeMs,
-			&result.TargetDescription,
+			&result.TargetDescription, &result.FirstDiscoveredAt,
 		)
 		if err != nil {
 			http.Error(w, "Failed to parse results", http.StatusInternalServerError)

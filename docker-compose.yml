@@ -31,6 +31,9 @@ services:
       DB_USER: postgres
       DB_PASSWORD: postgres
       DB_NAME: ipscanner
+      # Azure AD Configuration
+      AZURE_TENANT_ID: ${AZURE_TENANT_ID}
+      AZURE_CLIENT_ID: ${AZURE_CLIENT_ID}
       # AWS credentials - these will be picked up from host environment
       # Set AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_REGION on your host
       # or configure AWS credentials in ~/.aws/credentials
@@ -48,6 +51,11 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        REACT_APP_AZURE_CLIENT_ID: ${AZURE_CLIENT_ID}
+        REACT_APP_AZURE_TENANT_ID: ${AZURE_TENANT_ID}
+        REACT_APP_REDIRECT_URI: ${REACT_APP_REDIRECT_URI:-http://localhost:3000}
+        REACT_APP_API_URL: ${REACT_APP_API_URL:-/api/v1}
     container_name: ip-scanner-frontend
     ports:
       - "3000:80"

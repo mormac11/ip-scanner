@@ -1,45 +1,49 @@
 .support-container {
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
-  padding: 20px;
 }
 
 .support-nav {
   display: flex;
-  gap: 10px;
-  margin-bottom: 30px;
+  gap: 12px;
+  margin-bottom: 32px;
   flex-wrap: wrap;
 }
 
 .support-nav button {
-  padding: 10px 20px;
-  border: 2px solid #116dff;
+  padding: 12px 24px;
+  border: 2px solid rgba(102, 126, 234, 0.2);
   background: white;
-  color: #116dff;
-  border-radius: 6px;
+  color: #4a5568;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 14px;
-  font-weight: 500;
-  transition: all 0.4s ease;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .support-nav button:hover {
-  background: #f0f8ff;
+  border-color: #667eea;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
 }
 
 .support-nav button.active {
-  background: #116dff;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
 .support-section {
-  animation: fadeIn 0.3s;
+  animation: fadeIn 0.4s ease;
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(15px);
   }
   to {
     opacity: 1;
@@ -48,205 +52,247 @@
 }
 
 .info-box, .warning-box, .success-box, .critical-box, .help-box, .issue-box, .faq-item {
-  background: #f8f9fa;
-  border-left: 4px solid #116dff;
-  padding: 15px 20px;
-  margin: 20px 0;
-  border-radius: 4px;
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+  border-left: 5px solid #667eea;
+  padding: 20px 24px;
+  margin: 24px 0;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
 .warning-box {
-  background: #fff3cd;
-  border-left-color: #ffc107;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border-left-color: #f59e0b;
 }
 
 .success-box {
-  background: #d4edda;
-  border-left-color: #28a745;
-  color: #155724;
-  font-weight: 500;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-left-color: #10b981;
+  color: #065f46;
+  font-weight: 600;
 }
 
 .critical-box {
-  background: #f8d7da;
-  border-left-color: #dc3545;
-  color: #721c24;
-  font-weight: bold;
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  border-left-color: #ef4444;
+  color: #991b1b;
+  font-weight: 700;
 }
 
 .help-box {
-  background: #e7f3ff;
-  border-left-color: #0066cc;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border-left-color: #3b82f6;
 }
 
 .issue-box {
-  background: #fff8e1;
-  border-left-color: #ff9800;
-  margin-bottom: 15px;
+  background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%);
+  border-left-color: #f59e0b;
+  margin-bottom: 20px;
 }
 
 .info-box h4, .warning-box h4, .help-box h4 {
   margin-top: 0;
-  color: #333;
+  color: #1a202c;
+  font-weight: 700;
+  font-size: 1.1rem;
 }
 
 .info-box ul, .info-box ol {
-  margin: 10px 0;
-  padding-left: 20px;
+  margin: 12px 0;
+  padding-left: 24px;
+  color: #2d3748;
+}
+
+.info-box li {
+  margin: 8px 0;
+  line-height: 1.6;
 }
 
 .ports-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 10px;
-  margin-top: 15px;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
 }
 
 .port-item {
   background: white;
-  padding: 10px;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-  font-size: 14px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 2px solid #e2e8f0;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+}
+
+.port-item:hover {
+  border-color: #667eea;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
 }
 
 .step-section {
   background: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 20px;
-  margin: 20px 0;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px;
+  margin: 24px 0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
 .step-section h4 {
-  color: #116dff;
+  color: #667eea;
   margin-top: 0;
-  margin-bottom: 15px;
-  font-size: 18px;
+  margin-bottom: 16px;
+  font-size: 1.2rem;
+  font-weight: 700;
 }
 
 .step-section.critical {
-  border-color: #dc3545;
-  border-width: 2px;
+  border-color: #ef4444;
+  border-width: 3px;
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
 }
 
 .step-section ol {
-  margin: 10px 0;
-  padding-left: 25px;
+  margin: 12px 0;
+  padding-left: 28px;
+  color: #2d3748;
 }
 
 .step-section li {
-  margin: 10px 0;
-  line-height: 1.6;
+  margin: 12px 0;
+  line-height: 1.7;
 }
 
 .step-section ul {
-  margin: 10px 0 10px 20px;
+  margin: 12px 0 12px 24px;
 }
 
 .warning-item {
-  color: #856404;
-  font-weight: 500;
+  color: #92400e;
+  font-weight: 600;
 }
 
 .code-block {
-  background: #2d2d2d;
-  color: #f8f8f2;
-  padding: 15px;
-  border-radius: 6px;
+  background: #1a202c;
+  color: #e2e8f0;
+  padding: 20px;
+  border-radius: 10px;
   overflow-x: auto;
-  font-family: 'Courier New', monospace;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
   font-size: 13px;
-  line-height: 1.5;
-  margin: 15px 0;
+  line-height: 1.6;
+  margin: 16px 0;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
 code {
-  background: #f4f4f4;
-  padding: 2px 6px;
-  border-radius: 3px;
-  font-family: 'Courier New', monospace;
+  background: rgba(102, 126, 234, 0.1);
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
   font-size: 13px;
-  color: #d63384;
+  color: #667eea;
+  font-weight: 600;
 }
 
 .faq-item {
-  border-left-color: #17a2b8;
-  background: #e7f8fd;
+  border-left-color: #06b6d4;
+  background: linear-gradient(135deg, #ecfeff 0%, #cffafe 100%);
 }
 
 .faq-item h4 {
-  color: #0c5460;
+  color: #0e7490;
   margin-top: 0;
-  margin-bottom: 15px;
-  font-size: 18px;
-  border-bottom: 2px solid #17a2b8;
-  padding-bottom: 10px;
+  margin-bottom: 16px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  border-bottom: 3px solid #06b6d4;
+  padding-bottom: 12px;
 }
 
 .faq-question {
   background: white;
-  padding: 15px;
-  margin: 15px 0;
-  border-radius: 6px;
-  border: 1px solid #bee5eb;
+  padding: 18px;
+  margin: 16px 0;
+  border-radius: 10px;
+  border: 2px solid #a5f3fc;
+  box-shadow: 0 2px 8px rgba(6, 182, 212, 0.08);
+  transition: all 0.2s ease;
+}
+
+.faq-question:hover {
+  border-color: #06b6d4;
+  transform: translateX(4px);
+  box-shadow: 0 4px 15px rgba(6, 182, 212, 0.15);
 }
 
 .faq-question strong {
-  color: #0c5460;
-  display: block;
-  margin-bottom: 8px;
-  font-size: 15px;
-}
-
-.faq-question p {
-  margin: 8px 0;
-  color: #333;
-}
-
-.faq-question ul {
-  margin: 10px 0;
-  padding-left: 25px;
-}
-
-.faq-question ol {
-  margin: 10px 0;
-  padding-left: 25px;
-}
-
-.troubleshoot-section {
-  margin: 30px 0;
-}
-
-.troubleshoot-section h4 {
-  color: #ff9800;
-  border-bottom: 2px solid #ff9800;
-  padding-bottom: 10px;
-  margin-bottom: 20px;
-}
-
-.issue-box strong {
-  color: #e65100;
+  color: #0e7490;
   display: block;
   margin-bottom: 10px;
   font-size: 15px;
+  font-weight: 700;
+}
+
+.faq-question p {
+  margin: 10px 0;
+  color: #2d3748;
+  line-height: 1.6;
+}
+
+.faq-question ul {
+  margin: 12px 0;
+  padding-left: 28px;
+}
+
+.faq-question ol {
+  margin: 12px 0;
+  padding-left: 28px;
+}
+
+.troubleshoot-section {
+  margin: 32px 0;
+}
+
+.troubleshoot-section h4 {
+  color: #f59e0b;
+  border-bottom: 3px solid #f59e0b;
+  padding-bottom: 12px;
+  margin-bottom: 24px;
+  font-weight: 700;
+  font-size: 1.3rem;
+}
+
+.issue-box strong {
+  color: #b45309;
+  display: block;
+  margin-bottom: 12px;
+  font-size: 15px;
+  font-weight: 700;
 }
 
 .issue-box p {
-  margin: 5px 0;
+  margin: 8px 0;
+  color: #2d3748;
 }
 
 .issue-box ul {
-  margin: 10px 0;
-  padding-left: 25px;
+  margin: 12px 0;
+  padding-left: 28px;
 }
 
 a {
-  color: #116dff;
+  color: #667eea;
   text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s ease;
 }
 
 a:hover {
+  color: #764ba2;
   text-decoration: underline;
 }
 
@@ -260,11 +306,15 @@ a:hover {
   }
 
   .ports-grid {
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
   }
 
   .code-block {
     font-size: 12px;
-    padding: 10px;
+    padding: 14px;
+  }
+
+  .step-section {
+    padding: 18px;
   }
 }

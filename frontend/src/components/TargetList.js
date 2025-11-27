@@ -2,6 +2,30 @@ import React from 'react';
 import './TargetList.css';
 
 function TargetList({ targets, onDelete, onToggle, loading }) {
+  const formatTimeAgo = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now - date) / 1000);
+
+    if (seconds < 60) return 'Just now';
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+    if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
+
+    return date.toLocaleDateString();
+  };
+
+  const formatDateTime = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   if (loading) {
     return <div className="loading">Loading targets...</div>;
   }
@@ -24,7 +48,7 @@ function TargetList({ targets, onDelete, onToggle, loading }) {
             <th>Target</th>
             <th>Description</th>
             <th>Status</th>
-            <th>Added</th>
+            <th>First Discovered</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -38,7 +62,12 @@ function TargetList({ targets, onDelete, onToggle, loading }) {
                   {target.enabled ? 'Enabled' : 'Disabled'}
                 </span>
               </td>
-              <td>{new Date(target.created_at).toLocaleDateString()}</td>
+              <td>
+                <div className="timestamp-cell">
+                  <span className="time-ago">{formatTimeAgo(target.created_at)}</span>
+                  <span className="full-date">{formatDateTime(target.created_at)}</span>
+                </div>
+              </td>
               <td>
                 <div className="actions">
                   <button

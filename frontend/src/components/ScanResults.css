@@ -6,144 +6,268 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
 .view-toggle {
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 
 .toggle-btn {
-  padding: 8px 16px;
-  border: 2px solid #e0e0e0;
+  padding: 10px 20px;
+  border: 2px solid rgba(102, 126, 234, 0.2);
   background: white;
-  border-radius: 6px;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 14px;
-  transition: all 0.4s ease;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: #4a5568;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .toggle-btn:hover {
-  border-color: #116dff;
+  border-color: #667eea;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
 }
 
 .toggle-btn.active {
-  background: #116dff;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  border-color: #116dff;
+  border-color: transparent;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
 .refresh-btn {
-  padding: 8px 16px;
-  background: #f5f5f5;
-  border: 2px solid #e0e0e0;
-  border-radius: 6px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 14px;
-  transition: all 0.4s ease;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: #4a5568;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .refresh-btn:hover {
-  background: #e0e0e0;
+  background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .results-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 24px;
 }
 
 .ip-card {
   background: white;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 20px;
-  transition: transform 0.2s, box-shadow 0.2s;
+  border: 2px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 24px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
 }
 
 .ip-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 35px rgba(102, 126, 234, 0.15);
+  border-color: #667eea;
 }
 
 .ip-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #f0f0f0;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 2px solid #e2e8f0;
 }
 
 .ip-header h3 {
   margin: 0;
-  font-family: 'Courier New', monospace;
-  color: #116dff;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  color: #667eea;
+  font-size: 16px;
+  font-weight: 700;
 }
 
 .port-count {
-  background: #e3f2fd;
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #1976d2;
+  background: linear-gradient(135deg, #bee3f8 0%, #90cdf4 100%);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #2c5282;
+  box-shadow: 0 2px 8px rgba(66, 153, 225, 0.2);
+  letter-spacing: 0.3px;
 }
 
 .ports-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 15px;
+  gap: 10px;
+  margin-bottom: 18px;
 }
 
 .port-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px;
-  background: #fafafa;
-  border-radius: 6px;
-  border-left: 4px solid #e0e0e0;
+  padding: 12px 14px;
+  background: #f9fafb;
+  border-radius: 10px;
+  border-left: 3px solid #e5e7eb;
+  transition: all 0.2s ease;
+}
+
+.port-item:hover {
+  background: #f3f4f6;
+  transform: translateX(2px);
 }
 
 .port-item.open {
-  border-left-color: #4caf50;
-  background: #f1f8f4;
+  border-left-color: #10b981;
+  background: #f0fdf4;
+}
+
+.port-item.open:hover {
+  background: #dcfce7;
+}
+
+.port-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.port-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: #6b7280;
 }
 
 .port-number {
-  font-weight: 600;
-  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  color: #2d3748;
+  font-size: 14px;
 }
 
 .port-status {
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 14px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .port-status.open {
-  background: #c8e6c9;
-  color: #2e7d32;
+  background: linear-gradient(135deg, #9ae6b4 0%, #68d391 100%);
+  color: #22543d;
+  box-shadow: 0 2px 6px rgba(72, 187, 120, 0.25);
 }
 
 .port-status.closed {
-  background: #ffcdd2;
-  color: #c62828;
+  background: linear-gradient(135deg, #fed7d7 0%, #fc8181 100%);
+  color: #742a2a;
+  box-shadow: 0 2px 6px rgba(245, 101, 101, 0.25);
+}
+
+.port-scan-time {
+  font-size: 11px;
+  color: #9ca3af;
+  font-weight: 500;
 }
 
 .response-time {
-  font-size: 12px;
-  color: #666;
+  font-size: 11px;
+  color: #6b7280;
+  font-weight: 600;
+  background: #f3f4f6;
+  padding: 2px 8px;
+  border-radius: 4px;
 }
 
-.scan-time {
+.scan-metadata {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 16px;
+  margin-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.metadata-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.metadata-label {
   font-size: 12px;
-  color: #999;
-  text-align: center;
-  padding-top: 10px;
-  border-top: 1px solid #f0f0f0;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.metadata-value {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.metadata-value .time-ago {
+  font-weight: 600;
+  color: #111827;
+  font-size: 13px;
+}
+
+.metadata-value .full-date {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+/* Legacy support for scan-time */
+.scan-time {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  margin-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.scan-time-label {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.scan-timestamp {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.scan-timestamp .time-ago {
+  font-weight: 600;
+  color: #111827;
+  font-size: 13px;
+}
+
+.scan-timestamp .full-date {
+  font-size: 11px;
+  color: #9ca3af;
 }

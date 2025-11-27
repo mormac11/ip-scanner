@@ -28,6 +28,30 @@ function ScanResults({ api }) {
     }
   };
 
+  const formatTimeAgo = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now - date) / 1000);
+
+    if (seconds < 60) return 'Just now';
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+    if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
+
+    return date.toLocaleDateString();
+  };
+
+  const formatDateTime = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   const groupByIP = (results) => {
     const grouped = {};
     results.forEach(result => {
@@ -94,18 +118,38 @@ function ScanResults({ api }) {
             <div className="ports-list">
               {groupedResults[ip].map((result, idx) => (
                 <div key={idx} className={`port-item ${result.status}`}>
-                  <span className="port-number">Port {result.port}</span>
-                  <span className={`port-status ${result.status}`}>
-                    {result.status === 'open' ? '✓ Open' : '✗ Closed'}
-                  </span>
-                  {result.response_time_ms > 0 && (
-                    <span className="response-time">{result.response_time_ms}ms</span>
-                  )}
+                  <div className="port-info">
+                    <span className="port-number">Port {result.port}</span>
+                    <span className={`port-status ${result.status}`}>
+                      {result.status === 'open' ? '✓ Open' : '✗ Closed'}
+                    </span>
+                  </div>
+                  <div className="port-meta">
+                    {result.response_time_ms > 0 && (
+                      <span className="response-time">{result.response_time_ms}ms</span>
+                    )}
+                    <span className="port-scan-time">{formatTimeAgo(result.scanned_at)}</span>
+                  </div>
                 </div>
               ))}
             </div>
-            <div className="scan-time">
-              Last scanned: {new Date(groupedResults[ip][0].scanned_at).toLocaleString()}
+            <div className="scan-metadata">
+              {groupedResults[ip][0].first_discovered_at && (
+                <div className="metadata-item">
+                  <div className="metadata-label">First discovered:</div>
+                  <div className="metadata-value">
+                    <span className="time-ago">{formatTimeAgo(groupedResults[ip][0].first_discovered_at)}</span>
+                    <span className="full-date">{formatDateTime(groupedResults[ip][0].first_discovered_at)}</span>
+                  </div>
+                </div>
+              )}
+              <div className="metadata-item">
+                <div className="metadata-label">Last scanned:</div>
+                <div className="metadata-value">
+                  <span className="time-ago">{formatTimeAgo(groupedResults[ip][0].scanned_at)}</span>
+                  <span className="full-date">{formatDateTime(groupedResults[ip][0].scanned_at)}</span>
+                </div>
+              </div>
             </div>
           </div>
         ))}

@@ -37,7 +37,8 @@ type CreateTargetRequest struct {
 
 type ScanResultWithTarget struct {
 	ScanResult
-	TargetDescription string `json:"target_description"`
+	TargetDescription string     `json:"target_description"`
+	FirstDiscoveredAt *time.Time `json:"first_discovered_at,omitempty"`
 }
 
 type AWSCredentials struct {

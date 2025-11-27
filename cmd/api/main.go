@@ -10,6 +10,7 @@ import (
 
 	"ip-scanner/internal/database"
 	"ip-scanner/internal/handlers"
+	// "ip-scanner/internal/middleware" // DISABLED: Uncomment to enable authentication
 	"ip-scanner/internal/scheduler"
 
 	"github.com/gorilla/mux"
@@ -37,6 +38,11 @@ func main() {
 
 	// API routes
 	api := router.PathPrefix("/api/v1").Subrouter()
+
+	// Apply JWT authentication middleware to all API routes
+	// DISABLED: Uncomment the line below to enable Azure AD authentication
+	// api.Use(middleware.JWTAuthMiddleware)
+
 	api.HandleFunc("/status", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte(`{"status": "ok", "service": "ip-scanner"}`))
@@ -67,6 +73,10 @@ func main() {
 	scanScheduler := scheduler.NewScheduler(db, 15*time.Minute)
 	scanScheduler.Start()
 
+	// Start the AWS sync scheduler (every 1 hour)
+	awsScheduler := scheduler.NewAWSScheduler(db, 1*time.Hour)
+	awsScheduler.Start()
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
@@ -87,11 +97,13 @@ func main() {
 
 		log.Println("Shutting down server...")
 		scanScheduler.Stop()
+		awsScheduler.Stop()
 		server.Close()
 	}()
 
 	log.Printf("Server starting on port %s", port)
 	log.Printf("Scheduler running - scans every 15 minutes")
+	log.Printf("AWS sync running - syncs every 1 hour")
 	log.Fatal(server.ListenAndServe())
 }
 
