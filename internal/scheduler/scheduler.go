@@ -20,6 +20,13 @@ type Scheduler struct {
 	manualScan  chan struct{}
 }
 
+type portVerification struct {
+	targetID  int
+	ip        string
+	port      int
+	timestamp time.Time
+}
+
 func NewScheduler(db *sql.DB, interval time.Duration) *Scheduler {
 	return &Scheduler{
 		db:         db,
@@ -206,11 +213,13 @@ func (s *Scheduler) performScan() {
 							totalPorts++
 							mu.Unlock()
 
-							// Create notification if port status changed from closed to open
+							// Create notification if port status changed
 							if previousStatus == "closed" && result.Status == "open" {
+								// Port opened - notify immediately
 								s.createNotification(t.id, result.IP, result.Port, "new_port")
 							} else if previousStatus == "open" && result.Status == "closed" {
-								s.createNotification(t.id, result.IP, result.Port, "port_closed")
+								// Port closed - schedule verification in 1 minute
+								s.schedulePortVerification(t.id, result.IP, result.Port)
 							}
 						}
 					}
@@ -254,6 +263,27 @@ func (s *Scheduler) markSessionFailed(sessionID int) {
 	}
 }
 
+// schedulePortVerification schedules a re-check of a specific port after 1 minute
+func (s *Scheduler) schedulePortVerification(targetID int, ip string, port int) {
+	log.Printf("Scheduling verification for %s:%d in 1 minute", ip, port)
+
+	time.AfterFunc(1*time.Minute, func() {
+		log.Printf("Verifying port closure for %s:%d", ip, port)
+
+		// Re-scan just this specific port
+		result := scanner.ScanPort(ip, port, 2*time.Second)
+
+		if result.Status == "closed" {
+			// Port is still closed after verification, create notification
+			log.Printf("Verification confirmed: %s:%d is still closed", ip, port)
+			s.createNotification(targetID, ip, port, "port_closed")
+		} else {
+			// Port reopened, log but don't notify
+			log.Printf("Verification failed: %s:%d reopened, not recording closure", ip, port)
+		}
+	})
+}
+
 func (s *Scheduler) createNotification(targetID int, ip string, port int, notificationType string) {
 	var title, message, severity string
 
@@ -264,7 +294,7 @@ func (s *Scheduler) createNotification(targetID int, ip string, port int, notifi
 		severity = "warning"
 	case "port_closed":
 		title = "Port Closed"
-		message = fmt.Sprintf("Port %d is now closed on %s", port, ip)
+		message = fmt.Sprintf("Port %d is now closed on %s (verified)", port, ip)
 		severity = "info"
 	default:
 		return
